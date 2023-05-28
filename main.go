@@ -1,15 +1,23 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
 	"task-core/routes"
+	"time"
+
+	db "task-core/db"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	recoverFiber "github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 func Handle(c *fiber.Ctx) error {
@@ -28,8 +36,31 @@ func ErrorHandler() fiber.Handler {
 	return Handle
 }
 
+func HealthCheck(c *fiber.Ctx) error {
+	res := map[string]interface{}{
+		"server":    "Server is up and running",
+		"db_status": "Connected",
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if errP := db.MG.Client.Ping(ctx, readpref.Primary()); errP != nil {
+		log.Println("errP", errP)
+		res["db_status"] = "Not Connected"
+	}
+
+	return c.JSON(res)
+}
+
 func main() {
-	port := ":4500"
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Fatal("error while loading env file.")
+	}
+
+	port := os.Getenv("PORT")
 
 	app := fiber.New(fiber.Config{
 		ReadBufferSize: 100 * 1024 * 1024,
@@ -67,7 +98,9 @@ func main() {
 		AllowMethods: "GET,POST,PATCH,DELETE,PUT",
 	}))
 
+	db.Connect()
 	app.Use(logger.New())
+	app.Get("/healthcheck", HealthCheck)
 
 	api := app.Group("/api/v1")
 	routes.RootRoute(api)
