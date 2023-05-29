@@ -1,11 +1,13 @@
 package workspace
 
 import (
+	"log"
 	"task-core/controllers/response"
 	workspaceEntitiy "task-core/models/entities/workspace"
 	workspaceRepository "task-core/models/repositories/workspace"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func Create(c *fiber.Ctx) error {
@@ -31,7 +33,26 @@ func Create(c *fiber.Ctx) error {
 }
 
 func ReadAll(c *fiber.Ctx) error {
-	return response.ResponseOK(c, 200, "", "This is a read-all route")
+	var query workspaceEntitiy.QueryList
+	c.QueryParser(&query)
+
+	pipeline := mongo.Pipeline{}
+	rows, err := workspaceRepository.Aggregate(c, pipeline)
+
+	if err != nil {
+		log.Println("err /workspace/list", err)
+	}
+
+	data := workspaceEntitiy.ResponseList{
+		Rows: rows,
+		// Pagination: entities.Pagination{
+		// 	Page:    page,
+		// 	PerPage: perPage,
+		// 	Total:   total,
+		// },
+	}
+
+	return response.ResponseOK(c, fiber.StatusOK, data, "")
 }
 
 func ReadOne(c *fiber.Ctx) error {

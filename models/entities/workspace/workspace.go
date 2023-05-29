@@ -1,6 +1,8 @@
 package workspaceEntitiy
 
 import (
+	"task-core/models/entities"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -10,6 +12,16 @@ type BodyCreateWorkspace struct {
 	Type        string             `json:"workspaceType" bson:"workspaceType"`
 	Description string             `json:"description" bson:"description"`
 	Visibility  string             `json:"workspaceVisibility" bson:"workspaceVisibility"`
+}
+
+type QueryList struct {
+	Name string `json:"workspaceName" bson:"workspaceName"`
+	Type string `json:"workspaceType" bson:"workspaceType"`
+	entities.PaginationRequests
+}
+
+type ResponseList struct {
+	Rows []Workspace `json:"rows"`
 }
 
 type Workspace struct {

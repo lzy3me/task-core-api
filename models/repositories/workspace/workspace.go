@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -91,7 +92,41 @@ func SoftDelete(c *fiber.Ctx, filter primitive.M, by *primitive.ObjectID) (inter
 	return result, errFind
 }
 
-func Count(c *fiber.Ctx, filter primitive.M) (int64, error) {
-	count, err := repositories.SuperCount(c, collectionName, filter, nil)
-	return count, err
+func Aggregate(c *fiber.Ctx, pipeline mongo.Pipeline) ([]workspaceEntitiy.Workspace, error) {
+	cursor, err := repositories.SuperAggregate(c, collectionName, pipeline)
+	var results []workspaceEntitiy.Workspace = make([]workspaceEntitiy.Workspace, 0)
+	if err != nil {
+		log.Println(err)
+
+		return results, err
+	}
+
+	errC := cursor.All(c.Context(), &results)
+	if errC != nil {
+		log.Println("errC", errC)
+	}
+
+	// record := BuildRows(results)
+
+	return results, err
+}
+
+func CountAggregate(c *fiber.Ctx, pipeline mongo.Pipeline) (int64, error) {
+	cursor, err := repositories.SuperAggregate(c, collectionName, pipeline)
+	var countLoaded = []entities.CountAggregate{}
+	var cnt int64 = 0
+
+	if err != nil {
+		log.Println(err)
+
+		return cnt, err
+	}
+
+	cursor.All(c.Context(), &countLoaded)
+
+	if len(countLoaded) > 0 {
+		cnt = int64(countLoaded[0].Count)
+	}
+
+	return cnt, err
 }
