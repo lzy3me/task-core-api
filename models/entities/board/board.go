@@ -37,3 +37,7 @@ type BoardUserMember struct {
 	UserId primitive.ObjectID `json:"userId" bson:"userId"`
 	Level  int                `json:"level" bson:"level"`
 }
+
+type ParamCollection struct {
+	BoardID primitive.ObjectID `json:"boardId" bson:"boardId"`
+}

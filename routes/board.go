@@ -16,6 +16,7 @@ func BoardRoute(app fiber.Router) {
 	// Board Collection
 	api.Get("/:boardId", bcController.ReadAll)
 	api.Post("/:boardId/new", bcController.Create)
-	api.Put("/edit/:boardCollectionId", bController.Delete) // Update board collection detail
-	api.Put("/list/:boardCollectionId", bController.Delete) // Change list on board
+	api.Get("/detail/:boardCollectionId", bcController.Detail)
+	api.Put("/edit/:boardCollectionId", bcController.Update)     // Update board collection detail
+	api.Put("/list/:boardCollectionId", bcController.ChangeList) // Change list on board
 }

@@ -26,25 +26,26 @@ type BodyCreate struct {
 }
 
 type BodyEdit struct {
-	BelongToBoard primitive.ObjectID   `json:"belongToBoard" bson:"belongToBoard"`
-	BelongToList  string               `json:"belongToList" bson:"belongToList"`
-	Name          string               `json:"name" bson:"name"`
-	Description   string               `json:"description" bson:"description"`
-	WatchUsers    []primitive.ObjectID `json:"watchUsers" bson:"watchUsers"`
-	AssignUsers   []primitive.ObjectID `json:"assignUsers" bson:"assignUsers"`
-	DueDate       string               `json:"due_date" bson:"due_date"`
-	Labels        []string             `json:"label" bson:"label"`
-	Collection    []string             `json:"collection" bson:"collection"`
+	Name        string `json:"name" bson:"name"`
+	Description string `json:"description" bson:"description"`
+	WatchUsers  string `json:"watchUsers" bson:"watchUsers"`
+	AssignUsers string `json:"assignUsers" bson:"assignUsers"`
+	DueDate     string `json:"due_date" bson:"due_date"`
+	Labels      string `json:"label" bson:"label"`
+	Collection  string `json:"collection" bson:"collection"`
 }
 
 type QueryCollection struct {
-	// BoardID primitive.ObjectID `json:"boardId" bson:"boardId"`
 	User string `json:"userId" bson:"userId"`
 	Name string `json:"name" bson:"name"`
 }
 
+type BodyChangeList struct {
+	ListID string `json:"listId", bson:"listId"`
+}
+
 type ParamCollection struct {
-	BoardID primitive.ObjectID `json:"boardId" bson:"boardId"`
+	BoardCollectionID primitive.ObjectID `json:"boardCollectionId" bson:"boardCollectionId"`
 }
 
 type ResponseList struct {
