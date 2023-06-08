@@ -1,6 +1,7 @@
 package listController
 
 import (
+	"task-core/controllers/response"
 	listEntity "task-core/models/entities/list"
 	listRepository "task-core/models/repositories/list"
 
@@ -28,4 +29,24 @@ func TemplateList(c *fiber.Ctx, res interface{}) (interface{}, error) {
 
 	result, err := listRepository.InsertMany(c, listBody)
 	return result, err
+}
+
+func Create(c *fiber.Ctx) error {
+	body := new(listEntity.BodyCreate)
+	if err := c.BodyParser(body); err != nil {
+		return response.ResponseError(c, fiber.StatusBadRequest, "", nil)
+	}
+
+	rawBody := listEntity.Lists{
+		IDBoard:  body.IDBoard,
+		Name:     body.Name,
+		Position: body.Position,
+	}
+
+	res, err := listRepository.Insert(c, rawBody)
+	if err != nil {
+		return response.ResponseError(c, fiber.StatusBadRequest, err.Error(), nil)
+	}
+
+	return response.ResponseOK(c, fiber.StatusOK, res, "")
 }
