@@ -12,6 +12,8 @@ func BoardRoute(app fiber.Router) {
 	// Board
 	api.Post("/create", bController.Create)
 	api.Get("/list", bController.ReadAll)
+	api.Get("/get/:boardId", bController.ReadOne)
+	api.Delete("/del/:boardId", bController.Delete)
 
 	// Board Collection
 	api.Get("/:boardId", bcController.ReadAll)

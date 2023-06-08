@@ -130,6 +130,28 @@ func SuperDeleteMany(c *fiber.Ctx, collectionName string, filter primitive.M) (i
 	return result, err
 }
 
+func SuperHardDelete(c *fiber.Ctx, collectionName string, filter primitive.M) (interface{}, error) {
+	optsSession := options.Session().SetDefaultReadConcern(readconcern.Majority())
+	sess, err := db.MG.Client.StartSession(optsSession)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer sess.EndSession(c.Context())
+
+	txnOpts := options.Transaction().SetReadPreference(readpref.PrimaryPreferred())
+	result, err := sess.WithTransaction(c.Context(), func(sessCtx mongo.SessionContext) (interface{}, error) {
+		var coll = db.MG.Database.Collection(collectionName)
+		res, err := coll.DeleteOne(c.Context(), filter)
+		if err != nil {
+			log.Println(err)
+		}
+
+		return res.DeletedCount, err
+	}, txnOpts)
+
+	return result, err
+}
+
 func SuperCount(c *fiber.Ctx, collectionName string, filter primitive.M, opts *options.CountOptions) (int64, error) {
 	coll := db.MG.Database.Collection(collectionName)
 

@@ -1,9 +1,9 @@
-package boardRepository
+package listRepository
 
 import (
 	"log"
 	"task-core/models/entities"
-	boardEnitity "task-core/models/entities/board"
+	listEnitity "task-core/models/entities/list"
 	"task-core/models/repositories"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,28 +12,32 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var collectionName = "board"
+var collectionName = "list"
 
 func Insert(c *fiber.Ctx, rawBody interface{}) (interface{}, error) {
 	result, err := repositories.SuperInsertOne(c, collectionName, rawBody)
 	return result, err
 }
 
-func BuildRows(rows []boardEnitity.Board) []boardEnitity.Board {
-	var record = make([]boardEnitity.Board, 0)
+func InsertMany(c *fiber.Ctx, rawBody []interface{}) (interface{}, error) {
+	result, err := repositories.SuperInsertMany(c, collectionName, rawBody)
+	return result, err
+}
+
+func BuildRows(rows []listEnitity.Lists) []listEnitity.Lists {
+	var record = make([]listEnitity.Lists, 0)
 	for _, v := range rows {
-		record = append(record, boardEnitity.Board{
-			ID:        v.ID,
-			CreatorID: v.CreatorID,
-			OrgID:     v.OrgID,
-			Name:      v.Name,
+		record = append(record, listEnitity.Lists{
+			ID:       v.ID,
+			Name:     v.Name,
+			Position: v.Position,
 		})
 	}
 
 	return record
 }
 
-func Find(c *fiber.Ctx, filter primitive.M, pagination *entities.PaginationRequests, sort *primitive.M) ([]boardEnitity.Board, error) {
+func Find(c *fiber.Ctx, filter primitive.M, pagination *entities.PaginationRequests, sort *primitive.M) ([]listEnitity.Lists, error) {
 	var opts = options.Find()
 
 	if pagination != nil {
@@ -58,7 +62,7 @@ func Find(c *fiber.Ctx, filter primitive.M, pagination *entities.PaginationReque
 		opts.SetSort(&sort)
 	}
 
-	var results []boardEnitity.Board = make([]boardEnitity.Board, 0)
+	var results []listEnitity.Lists = make([]listEnitity.Lists, 0)
 
 	filter["deleted_by"] = nil
 
@@ -74,8 +78,8 @@ func Find(c *fiber.Ctx, filter primitive.M, pagination *entities.PaginationReque
 	return results, err
 }
 
-func FindOne(c *fiber.Ctx, filter primitive.M) (boardEnitity.Board, error) {
-	var entity boardEnitity.Board
+func FindOne(c *fiber.Ctx, filter primitive.M) (listEnitity.Lists, error) {
+	var entity listEnitity.Lists
 	errFind := repositories.SuperFindOne(c, collectionName, filter, &entity)
 	return entity, errFind
 }
@@ -91,6 +95,11 @@ func SoftDelete(c *fiber.Ctx, filter primitive.M, by *primitive.ObjectID) (inter
 }
 
 func Delete(c *fiber.Ctx, filter primitive.M) (interface{}, error) {
-	result, errFind := repositories.SuperHardDelete(c, collectionName, filter)
-	return result, errFind
+	result, err := repositories.SuperHardDelete(c, collectionName, filter)
+	return result, err
+}
+
+func DeleteAll(c *fiber.Ctx, filter primitive.M) (interface{}, error) {
+	result, err := repositories.SuperDeleteMany(c, collectionName, filter)
+	return result, err
 }
