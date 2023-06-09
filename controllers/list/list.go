@@ -50,3 +50,11 @@ func Create(c *fiber.Ctx) error {
 
 	return response.ResponseOK(c, fiber.StatusOK, res, "")
 }
+
+func Update(c *fiber.Ctx) error {
+	return response.ResponseOK(c, fiber.StatusOK, "res", "")
+}
+
+func Archive(c *fiber.Ctx) error {
+	return response.ResponseOK(c, fiber.StatusOK, "res", "")
+}

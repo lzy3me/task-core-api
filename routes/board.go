@@ -19,6 +19,8 @@ func BoardRoute(app fiber.Router) {
 
 	// List
 	api.Post("/l/create", lController.Create)
+	api.Put("/l/:listId", lController.Update)
+	api.Put("/l/a/:listId", lController.Archive)
 
 	// Board Collection
 	api.Get("/:boardId", bcController.ReadAll)
